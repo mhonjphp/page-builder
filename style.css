@@ -1,3 +1,108 @@
-body {
-    background: red;
+.section {
+    padding: 54px 0;
+    position: relative;
+}
+
+.row {
+    padding: 27px 0;
+    width: 80%;
+    max-width: 1366px;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+}
+
+.column {
+    position: relative;
+    margin: 0 25px;
+    width: 100%;
+}
+
+.module {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.module:last-child {
+    margin-bottom: 0;
+}
+
+/* mdevpagebuilder ***/
+
+.mdevpagebuilder .column, 
+.mdevpagebuilder .module {
+    min-height: 40px;
+}
+
+.mdevpagebuilder .section:hover:before, 
+.mdevpagebuilder .row:hover:before, 
+.mdevpagebuilder .column:hover:before, 
+.mdevpagebuilder .module:hover:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    border: 3px solid #607D8B;
+}
+
+.mdevpagebuilder .column:hover:before {
+    border-color: #ddd;
+}
+
+.mdevpagebuilder .setting-buttons {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    background: #607D8B;
+    color: #FFF;
+    width: 65px;
+    padding: 7px;
+    text-align: center;
+    z-index: 2;;
+    display: none;
+}
+
+.mdevpagebuilder .setting-buttons i {
+    margin: 0 3px;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+.mdevpagebuilder .setting-buttons i:hover, 
+.mdevpagebuilder .add-module.temp:hover {
+    color: #CDDC39;
+}
+
+.mdevpagebuilder .section:hover .section-setting-buttons, 
+.mdevpagebuilder .row:hover .row-setting-buttons, 
+.mdevpagebuilder .column:hover .column-setting-buttons, 
+.mdevpagebuilder .module:hover .module-setting-buttons {
+    display: block;
+}
+
+.mdevpagebuilder .add-module.temp {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    width: 20px;
+    text-align: center;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    visibility: hidden;
+    color: #607D8B;
+}
+
+.mdevpagebuilder .row:hover .add-module {
+    visibility: visible;
 }
