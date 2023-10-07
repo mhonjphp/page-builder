@@ -25,8 +25,12 @@
       <section class="section"></section>
       <section class="section">
         <div class="row">
+          <div class="column"></div>
+        </div>
+        <div class="row">
+          <div class="column"></div>
           <div class="column">
-            <div class="module">Development...</div>
+            <div class="module"><div class="module-content">Development...</div></div>
           </div>
         </div>
       </section>
