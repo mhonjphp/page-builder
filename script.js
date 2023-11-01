@@ -69,7 +69,7 @@
 
     notice: function(message, status='success', classname="") {
       var classname = classname ? classname+" " : "";
-      return $('<div/>').addClass(classname+'mdev'+status).html(message);
+      return $('<div/>').addClass(classname+'mdevpb-'+status).html(message);
     },
 
     module: function(el, caze) {
@@ -109,7 +109,7 @@
               index = index=='column' ? 'module' : index, 
               index = data.single ? mdev.string(data.index, 'module') : index, 
               action = data.single ? 'add' : data.action, 
-              clasz = data.single ? 'xsort mdevpb-add-'+index+' mdevpb-single ' : "";
+              clasz = data.single ? 'mdevpb-cancel-sort mdevpb-add-'+index+' mdevpb-btn-action ' : "";
 
           elem.append($('<button/>', {
             class: clasz+'mdevpb-'+action, 
@@ -121,7 +121,7 @@
 
         case 'action':
           index = mdev.pagebuilder(elem, 'index'),
-          elem.append($('<div/>', {class:'mdev'+index+'-action mdevpb-action xsort'}));
+          elem.append($('<div/>', {class:'mdevpb-'+index+'-action mdevpb-action mdevpb-cancel-sort'}));
           $.each( ['edit','delete','add'], function ( key, action ){
             var index = mdev.pagebuilder(elem.parents(':eq(1)'), 'index');
             mdev.pagebuilder(elem.find('.mdevpb-action'), {caze:'button', action:action}); 
@@ -160,12 +160,12 @@
 
           var classes = "", i = elem.index()+1, 
               index = mdev.pagebuilder(el, 'index'), 
-              remove = ["mdevactive", "ui-sortable-handle", "ui-sortable"], 
+              remove = ["mdevpb-active", "ui-sortable-handle", "ui-sortable"], 
               modules = mdev.pagebuilder('module', 'keys');
 
           $.each( elem.attr('class').split(" "), function ( key, classname ) {
             var cn = classname.split('-'), 
-                classname = data.attribute ? classname : classname.replace('column-w', "").replace('mdevmodule-temp', ""), 
+                classname = data.attribute ? classname : classname.replace('column-w', "").replace('mdevpb-module-temp', ""), 
                 clasz = $.inArray(classname, remove) == -1 ? true : "";
                 clasz = $.inArray(classname.replace("-module", ""), modules) == -1
                 || data.attribute ? clasz : "";
@@ -204,7 +204,7 @@
         case 'data':
 
           var datas = {}, arr = {}, arr2 = {},
-              id = $('.mdevactive').data('id');
+              id = $('.mdevpb-active').data('id');
               style = $(".mdevpb-style").html(), 
               html = $(".mdevpb-data").html(), 
               json = html ? $.parseJSON(html) : {};
@@ -264,8 +264,8 @@
               stop: function(event, ui) {  
                 setting.hide();
                 mdev.pagebuilder('elements'); 
-                $('.mdevactive').removeClass('mdevactive');
-              }, cancel:".xsort", handle: '.mdevpb-handle', 
+                $('.mdevpb-active').removeClass('mdevpb-active');
+              }, cancel:".mdevpb-cancel-sort", handle: '.mdevpb-handle', 
               connectWith: (index=='section' ? "section" : (index=='column' ? ".column" : ""))
             });
           });
@@ -294,7 +294,7 @@
         case 'elements':
 
           container = $('.'+mdev.get('mdevpagebuilder'));
-          $('.xsort, .mdevpb-handle').remove();
+          $('.mdevpb-cancel-sort, .mdevpb-handle').remove();
 
           container.children().each(function(){
           mdev.pagebuilder(this, 'attribute'); });
@@ -312,7 +312,7 @@
           var index = mdev.pagebuilder(el, 'index'),
               element = index=='section'?'section':'div';
 
-          return $('<'+element+'/>', {class:index+" mdevtemp"}); 
+          return $('<'+element+'/>', {class:index+" mdevpb-temp"}); 
 
           break;
 
@@ -321,16 +321,16 @@
           var rowdule = data.structure, 
               rowdule = data.module ? data.module : rowdule
               parent = elem.parents(':eq(1)'), 
-              parent = rowdule ? $('.mdevactive') : parent, 
-              parent = elem.hasClass('mdevpb-single') ? elem : parent, 
+              parent = rowdule ? $('.mdevpb-active') : parent, 
+              parent = elem.hasClass('mdevpb-btn-action') ? elem : parent, 
               index = mdev.pagebuilder(parent, 'index'), 
-              index = elem.hasClass('mdevpb-single') ? (elem.hasClass('mdevpb-add-row')?'row':'module') : index,
+              index = elem.hasClass('mdevpb-btn-action') ? (elem.hasClass('mdevpb-add-row')?'row':'module') : index,
               index = rowdule ? 'section' : index,
               section = mdev.pagebuilder(parent, 'element'),
-              element = $('<div/>', {class:'row mdevtemp'}).html($('<div/>', {class:'column'})), 
-              element = data.module ? $('<div/>', {class:elem.data('id')+'-module module mdevmodule-temp'}).html($('<div/>', {class:'module-content'})) : element;
+              element = $('<div/>', {class:'row mdevpb-temp'}).html($('<div/>', {class:'column'})), 
+              element = data.module ? $('<div/>', {class:elem.data('id')+'-module module mdevpb-module-temp'}).html($('<div/>', {class:'module-content'})) : element;
 
-          $('.mdevactive').removeClass('mdevactive');
+          $('.mdevpb-active').removeClass('mdevpb-active');
           mdev.pagebuilder('default-setting', {module: data.module});
 
           if(index=='section') {
@@ -340,21 +340,21 @@
               var i = elem.data('id'),
                   num = i==9 || i==10 ? 3 : i,
                   num = i==7 || i==8 ? 2 : num;
-              $('.row.mdevtemp').html("");
+              $('.row.mdevpb-temp').html("");
               for (let x = 0; x < num; x++) {
                 var clasz = i==7&&x==0||i==8&&x==1 ? 'column-w33' : "", 
                     clasz = i==7&&x==1||i==8&&x==2 ? 'column-w66' : clasz, 
                     clasz = i==9&&x==1||i==10&&x==0 ? 'column-w60' : clasz, 
                     clasz = i==9&&x==0||i==9&&x==2||i==10&&x==1||i==10&&x==2 ? 'column-w20' : clasz;
-                $('.row.mdevtemp').append($('<div/>', {class:clasz}).addClass('column'));
+                $('.row.mdevpb-temp').append($('<div/>', {class:clasz}).addClass('column'));
               }
             }  
           
-            rowdule ? "" : $('section.mdevtemp').html(element);
-            $('.mdevtemp').removeClass('mdevtemp');
-            data.module ? $('.mdevmodule-temp').parent().find('.mdevpb-single').remove() : "";
+            rowdule ? "" : $('section.mdevpb-temp').html(element);
+            $('.mdevpb-temp').removeClass('mdevpb-temp');
+            data.module ? $('.mdevpb-module-temp').parent().find('.mdevpb-btn-action').remove() : "";
             mdev.pagebuilder('elements');
-            data.module ? $('.mdevmodule-temp').addClass('mdevactive').removeClass('mdevmodule-temp') : "";
+            data.module ? $('.mdevpb-module-temp').addClass('mdevpb-active').removeClass('mdevpb-module-temp') : "";
 
           } else {
 
@@ -362,7 +362,7 @@
             setting.find('.mdevpb-content').children().hide();
             setting.fadeIn().find(index=='row'?'.mdevpb-structure':'.mdevpb-modules').show();
             setting.find('.mdevpb-heading').text('Insert '+index);
-            parent.addClass('mdevactive');
+            parent.addClass('mdevpb-active');
 
           }
             
@@ -375,9 +375,9 @@
               index = mdev.pagebuilder(elem, 'index'),
               heading = ['h1','h2','h3','h4','h5'];
 
-          $('.mdevactive').removeClass('mdevactive');
+          $('.mdevpb-active').removeClass('mdevpb-active');
 
-          elem.addClass('mdevactive');
+          elem.addClass('mdevpb-active');
           data = mdev.pagebuilder('data', '%s');
 
           $.each( data, function ( index, value ) {
@@ -414,7 +414,7 @@
 
           if(data.module) {
 
-            var elem = $('.mdevactive'),
+            var elem = $('.mdevpb-active'),
                 content = elem.find('.module-content'),
                 title = elem.find('.module-title');
 
@@ -426,9 +426,11 @@
 
             setting.find('#placement').val(content.hasClass('module-left')?'Left':'Top');
 
-            data.text = elem.find('.module-text').html();
-            data.text = data.text.replace(/\s\s+/g, "");
-            data.text = data.text.replace(/<br>/g, "\n");
+            if(data.module=='text') {
+              data.text = elem.find('.module-text').html();
+              data.text = data.text.replace(/\s\s+/g, "");
+              data.text = data.text.replace(/<br>/g, "\n");
+            }
 
           }  mdev.pagebuilder('module', data);
 
@@ -451,7 +453,7 @@
         case 'input':
 
           var design = {}, arr2 = {},
-              elem = $('.mdevactive'), 
+              elem = $('.mdevpb-active'), 
               i = elem.index()+1;
               index = mdev.pagebuilder(elem, 'index'), 
               data = mdev.pagebuilder('data', '%s'), 
@@ -459,7 +461,7 @@
 
           setting.find('#background-toggle img').attr('src', image);
 
-          $('.mdevpb-fields .mdevfield').each(function(){
+          $('.mdevpb-fields .mdevpb-field').each(function(){
             var field = $(this), 
                 name = field.attr('name'), 
                 value = field.val(); 
@@ -514,7 +516,7 @@
           arr.id ? elem.attr('id', arr.id) : elem.removeAttr('id');
           arr.class = mdev.string(arr.class, "%s ", "");
           arr.class = data.module ? arr.class+data.module+"-module " : arr.class;
-          elem.attr('class', arr.class+index+"-"+i+" "+index+" mdevactive");
+          elem.attr('class', arr.class+index+"-"+i+" "+index+" mdevpb-active");
 
           break;
 
@@ -531,21 +533,21 @@
               span = clasz.indexOf("design2") >= 0 && !data.label ? span.replace(span.split("_")[0], "") : span,
               label = $('<label/>', {
                 for: data.name, 
-                class: (data.switch ? "mdevpbfield-switch " : "")+'mdevpbfield-label', 
+                class: (data.switch ? "mdevpb-field-switch " : "")+'mdevpb-field-label', 
                 append: $('<span/>', {text:mdev.ucwords(span).replace(/_/g, ' ')})
               }), 
               input = $('<'+tag+'/>', {type:type, id:data.name, name:data.name, 
-                class: mdev.string(data.class, "%s ")+"mdevfield", 
+                class: mdev.string(data.class, "%s ")+"mdevpb-field", 
                 value: data.value, 
                 placeholder: data.placeholder
               }).prop('checked', data.checked),
               after = data.after,  
               field = $('<div/>', {
                 id: id, 
-                class: mdev.string(data.container_class, "%s ")+'mdevpbfield-'+type+" mdevpbfield-container", 
+                class: mdev.string(data.container_class, "%s ")+'mdevpb-field-'+type+" mdevpb-field-container", 
               });
 
-          elem.append(field.append(label.prepend(data.switch ? $('<span/>', {class:'mdevpbfield-switch-helper'}) : ""))
+          elem.append(field.append(label.prepend(data.switch ? $('<span/>', {class:'mdevpb-field-switch-helper'}) : ""))
           .append(input).append(after));
 
           elem = setting.find('#'+id);
@@ -555,7 +557,7 @@
           if(data.options) {
             var el = data.value;
             if(type!='select') elem.find(input).remove();
-            if(type!='select') elem.append($('<div/>',{class:'mdevpbfield-choices'})); 
+            if(type!='select') elem.append($('<div/>',{class:'mdevpb-field-choices'})); 
             $.each( data.options, function ( index, value ) {
               data.id = value;
               data.label = value;
@@ -564,7 +566,7 @@
               delete data.options;
               delete data.container_class;
               if(type=='select') elem.find(input).append($('<option/>', {value:data.value, text:data.value}));
-              else mdev.pagebuilder(elem.find('.mdevpbfield-choices'), data);
+              else mdev.pagebuilder(elem.find('.mdevpb-field-choices'), data);
             });
             if(type!='select') elem.find('input').removeAttr('id');
             if(type!='select') elem.find('label').removeAttr('for');
@@ -574,7 +576,7 @@
 
         case 'module':
 
-          var elem = $('.mdevactive'), 
+          var elem = $('.mdevpb-active'), 
               content = elem.find('.module-content'),
               modules = {
                 blurb : {
@@ -804,7 +806,7 @@
                     index = index ? index : "m-element", 
                     container = parent.hasClass('module-container');  
   
-                $('.xsort, .mdevpb-handle', this).remove();
+                $('.mdevpb-cancel-sort, .mdevpb-handle', this).remove();
                 elem.removeAttr('id').removeAttr('class').removeAttr('src').removeAttr('data-id');
                 
                 if(index=='section') {
@@ -825,7 +827,7 @@
                 elem.attr('id', id);
                 elem.attr('src', src);
                 elem.attr('class', clasz);
-                elem.removeClass('ui-sortable mdevactive');
+                elem.removeClass('ui-sortable mdevpb-active');
                 
               });
 
@@ -868,7 +870,7 @@
 
           });
 
-          $('.mdevpb-fields .mdevfield').each(function(){ 
+          $('.mdevpb-fields .mdevpb-field').each(function(){ 
             var action = 
             $(this).is(':checkbox') 
             || $(this).is(':radio') 
@@ -887,10 +889,10 @@
           setting.find('.mdevpb-fields').removeAttr('data-module');
           setting.find('#background-toggle img').attr('src', image);
           setting.find('#icon-toggle .toggle-content').append($('.icon-field').show());
-          setting.find('.mdevpb-none.mdevpbfield-container').hide();
+          setting.find('.mdevpb-none.mdevpb-field-container').hide();
           setting.find('.mdevpb-'+data.module).show();
 
-          $('.mdevpb-fields .mdevfield').each(function(){
+          $('.mdevpb-fields .mdevpb-field').each(function(){
             var field = $(this), 
                 name = field.attr('name'),
                 value = data[name.replace(/_/g, '-')];
@@ -935,6 +937,5 @@
   $(document).ready(function() { 
     
     if(mdev.get('mdevpagebuilder')) mdev.pagebuilder();
-
 
 }); })(jQuery)

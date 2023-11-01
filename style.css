@@ -142,7 +142,7 @@ section {
 
 /* mdevpagebuilder ***/
 
-.mdev *, .mdevform * {
+.mdev * {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -164,29 +164,29 @@ section {
     display: none;
 }
 
-.mdevnotice, 
-.mdevsuccess, 
-.mdeverror {
+.mdevpb-notice, 
+.mdevpb-success, 
+.mdevpb-error {
     background: #b4dbfa;
     padding: 15px 20px;
     color: #000;
     margin-bottom: 20px;
 }
 
-.mdevsuccess {
+.mdevpb-success {
     background: #eaf8db;
 }
 
-.mdeverror {
+.mdevpb-error {
     background: #fce7e4;
 }
 
-.mdevpbfield-container {
+.mdevpb-field-container {
     position: relative;
     margin: 8px 0 25px;
 }
 
-.mdevpbfield-label {
+.mdevpb-field-label {
     text-transform: capitalize;
     display: block;
     position: absolute;
@@ -196,8 +196,8 @@ section {
     padding: 0 5px;
 }
 
-.mdevpbfield-checkbox .mdevpbfield-label, 
-.mdevpbfield-radio .mdevpbfield-choices .mdevpbfield-label {
+.mdevpb-field-checkbox .mdevpb-field-label, 
+.mdevpb-field-radio .mdevpb-field-choices .mdevpb-field-label {
     position: initial;
     padding: 0;
     background: none;
@@ -205,7 +205,7 @@ section {
     align-items: center;
 }
 
-.mdevfield {
+.mdevpb-field {
     width: 100%;
     height: 48px;
     padding: 13px;
@@ -217,16 +217,16 @@ section {
     display: block;
 }
 
-[type=radio].mdevfield {
+[type=radio].mdevpb-field {
     width: auto;
 }
 
-textarea.mdevfield {
+textarea.mdevpb-field {
     height: 200px;
 }
 
-input[type=checkbox].mdevfield,
-input[type=radio].mdevfield {
+input[type=checkbox].mdevpb-field,
+input[type=radio].mdevpb-field {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -240,12 +240,12 @@ input[type=radio].mdevfield {
   padding: 0 !important;
 }
 
-input[type=radio].mdevfield {
+input[type=radio].mdevpb-field {
   border-radius: 100px !important;
 }
 
-input[type=checkbox].mdevfield:before, 
-input[type=radio].mdevfield:before {
+input[type=checkbox].mdevpb-field:before, 
+input[type=radio].mdevpb-field:before {
   position: absolute;
   left: 4px;
   top: 0;
@@ -262,15 +262,15 @@ input[type=radio].mdevfield:before {
   background: none;
 }
 
-input[type=checkbox].mdevfield:checked:before { 
+input[type=checkbox].mdevpb-field:checked:before { 
   content: "\f00c";
 }
 
-input[type=radio].mdevfield:checked:before {
+input[type=radio].mdevpb-field:checked:before {
   content: "\f111";
 }
 
-.mdevfield-error {
+.mdevpb-field-error {
     position: absolute;
     margin: 0;
     right: 5px;
@@ -281,7 +281,7 @@ input[type=radio].mdevfield:checked:before {
     border-radius: 3px;
 }
 
-.mdevpbfield-choices {
+.mdevpb-field-choices {
     display: flex;
     flex-wrap: wrap;
     margin-top: 10px;
@@ -290,15 +290,15 @@ input[type=radio].mdevfield:checked:before {
     padding: 16px 13px 13px;
 }
 
-.mdevpbfield-choices div {
+.mdevpb-field-choices div {
     margin: 0 10px 10px 0;
 }
 
-.mdevpbfield-switch input {
+.mdevpb-field-switch input {
     display: none;
 }
 
-.mdevpbfield-switch-helper {
+.mdevpb-field-switch-helper {
 	cursor: pointer;
 	text-indent: -9999px;
 	width: 30px;
@@ -310,7 +310,7 @@ input[type=radio].mdevfield:checked:before {
     margin-right: 5px;
 }
 
-.mdevpbfield-switch-helper:after {
+.mdevpb-field-switch-helper:after {
 	content: '';
 	position: absolute;
 	top: 5px;
@@ -322,7 +322,7 @@ input[type=radio].mdevfield:checked:before {
 	transition: 0.3s;
 }
 
-.mdevpbfield-switch-helper:after {
+.mdevpb-field-switch-helper:after {
 	content: '';
 	position: absolute;
 	top: 5px;
@@ -334,11 +334,11 @@ input[type=radio].mdevfield:checked:before {
 	transition: 0.3s;
 }
 
-.mdevpbfield-switch :checked + .mdevpbfield-switch-helper {
+.mdevpb-field-switch :checked + .mdevpb-field-switch-helper {
 	background: #bada55;
 }
 
-.mdevpbfield-switch :checked + .mdevpbfield-switch-helper:after {
+.mdevpb-field-switch :checked + .mdevpb-field-switch-helper:after {
 	left: calc(100% - 5px);
 	transform: translateX(-100%);
 }
@@ -401,11 +401,11 @@ input[type=radio].mdevfield:checked:before {
     border-radius: 3px;
 }
 
-.mdevrow-action {
+.mdevpb-row-action {
     background: #009688;
 }
 
-.mdevmodule-action {
+.mdevpb-module-action {
     background: #333333;
 }
 
@@ -425,7 +425,7 @@ input[type=radio].mdevfield:checked:before {
     color: #ddd;
 }
 
-.mdevpb-single {
+.mdevpb-btn-action {
     position: absolute;
     left: 0;
     right: 0;
@@ -442,7 +442,7 @@ input[type=radio].mdevfield:checked:before {
     background: #333;
 }
 
-.mdevpb-single {
+.mdevpb-btn-action {
     position: absolute;
     left: 0;
     right: 0;
@@ -459,7 +459,7 @@ input[type=radio].mdevfield:checked:before {
     background: #333;
 }
 
-.mdevpb-single:hover {
+.mdevpb-btn-action:hover {
     color: #ddd;
 }
 
@@ -479,11 +479,11 @@ input[type=radio].mdevfield:checked:before {
     content: "\2b";
 }
 
-.mdevpagebuilder section:hover .mdevsection-action, 
+.mdevpagebuilder section:hover .mdevpb-section-action, 
 .mdevpagebuilder section:hover .mdevpb-add-row, 
-.mdevpagebuilder .row:hover .mdevrow-action,
+.mdevpagebuilder .row:hover .mdevpb-row-action,
 .mdevpagebuilder .column:hover .mdevpb-add-module, 
-.mdevpagebuilder .module:hover .mdevmodule-action {
+.mdevpagebuilder .module:hover .mdevpb-module-action {
     display: block;
 }
 
@@ -614,15 +614,15 @@ input[type=radio].mdevfield:checked:before {
     padding: 25px;
 }
 
-.mdevpbfield-container:last-child {
+.mdevpb-field-container:last-child {
     margin-bottom: 0;
 }
 
-.mdevpb-fields .toggle .mdevpbfield-label {
+.mdevpb-fields .toggle .mdevpb-field-label {
     background: #f4f4f4;
 }
 
-.mdevpb-fields .open .mdevpbfield-label {
+.mdevpb-fields .open .mdevpb-field-label {
     background: #FFF;
 }
 
@@ -630,22 +630,22 @@ input[type=radio].mdevfield:checked:before {
     margin-bottom: 0;
 }
 
-.mdevpb-fields #heading-field .mdevpbfield-choices div {
+.mdevpb-fields #heading-field .mdevpb-field-choices div {
     margin: 0 5px 0 0;
 }
 
-.mdevpb-fields #heading-field .mdevpbfield-choices label span {
+.mdevpb-fields #heading-field .mdevpb-field-choices label span {
     border-radius: 3px;
     background: #ddd;
     padding: 4px 6px;
 }
 
-.mdevpb-fields #heading-field .mdevpbfield-choices input {
+.mdevpb-fields #heading-field .mdevpb-field-choices input {
     display: none;
 }
 
-.mdevpb-fields #heading-field .mdevpbfield-choices :checked+span, 
-.mdevpb-fields #heading-field .mdevpbfield-choices label span:hover {
+.mdevpb-fields #heading-field .mdevpb-field-choices :checked+span, 
+.mdevpb-fields #heading-field .mdevpb-field-choices label span:hover {
     background: #2196F3;
     color: #FFF;
     cursor: pointer;
