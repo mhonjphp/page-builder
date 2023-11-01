@@ -21,19 +21,70 @@
     <script src="script.js?time=<?php echo time(); ?>" type="text/javascript"></script>
   </head>
   <body>
+   
     <div class="content">
-      <section class="section"></section>
-      <section class="section">
-        <div class="row">
-          <div class="column"></div>
-        </div>
-        <div class="row">
-          <div class="column"></div>
-          <div class="column">
-            <div class="module"><div class="module-content">Development...</div></div>
+      <section class="section-1">
+        <div class="row-1 row">
+          <div class="column-1 column">
+            <div class="blurb-module module-1 module">
+              <div class="module-content">
+                <img src="http://localhost/page-builder/assets/no-image.jpg" class="module-image">
+                <div class="module-container">
+                  <h4 class="module-title">Title Here</h4>
+                  <div class="module-text">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.<br>
+                    <br>
+                    1<br>
+                    2<br>
+                    3
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column-2 column">
+            <div class="text-module module-1 module">
+              <div class="module-content">
+                <div class="module-text">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.<br>
+                  <br>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
+                </div>
+              </div>
+            </div>
+            <div class="title-module module-2 module">
+              <div class="module-content">
+                <h2 class="module-title">Title Here</h2>
+              </div>
+            </div>
+            <div class="text-module module-3 module">
+              <div class="module-content">
+                <div class="module-text">
+                  1<br>
+                  2<br>
+                  3<br>
+                  4
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column-3 column">
+            <div class="blurb-module module-1 module">
+              <div class="module-content">
+                <i class="module-icon fa fa-user"></i>
+                <div class="module-container">
+                  <h4 class="module-title">Title Here</h4>
+                  <div class="module-text">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
     </div>
+    
   </body>
 </html>
