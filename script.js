@@ -72,20 +72,27 @@
       return $('<div/>').addClass(classname+'mdevpb-'+status).html(message);
     },
 
-    module: function(el, caze) {
-      var elem = $(el)
-      switch(caze) {
+    module_action: function(el, module) {
+      var elem = $(el);
+      switch(module) {
         case 'toggle':
-          elem.each(function(){
-          $(this).find('.toggle-title').click(function(){
-            var parent = $(this).parent();
-            parent.hasClass('open') 
-              ? parent.removeClass('open').find('.toggle-content').slideUp()
-              : parent.addClass('open').find('.toggle-content').slideDown();
-          }); });
+          elem.find('.toggle-module .module-title, .toggle-module .mdevpb-handle').click(function(){
+            var parent = $(this).parent(), 
+                parent = $(this).hasClass('mdevpb-handle') ? parent.find('.module-base') : parent;
+            parent.hasClass('module-open') 
+              ? parent.removeClass('module-open').find('.module-content').slideUp()
+              : parent.addClass('module-open').find('.module-content').slideDown();
+          });
           break;
-
       }
+    },
+
+    module: function(el, module='all') {
+
+      if(module=='all') 
+      $.each( ['toggle'], function ( index, module ) {
+      mdev.module(el, module); });
+      else mdev.module_action(el, module);
 
     },
 
@@ -161,7 +168,7 @@
           var classes = "", i = elem.index()+1, 
               index = mdev.pagebuilder(el, 'index'), 
               remove = ["mdevpb-active", "ui-sortable-handle", "ui-sortable"], 
-              modules = mdev.pagebuilder('module', 'keys');
+              modules = $.merge(mdev.pagebuilder('module', 'keys'),['text']);
 
           $.each( elem.attr('class').split(" "), function ( key, classname ) {
             var cn = classname.split('-'), 
@@ -173,7 +180,8 @@
                 clasz = $.isNumeric(classname) ? "" : clasz;
                 clasz = classname==index ? "" : clasz;
           if(clasz) classes += classname+" "; });
-          return classes.trim();
+          return classes.replace('content-module','text-module').trim();
+
           break;
 
         case 'attribute':
@@ -240,13 +248,14 @@
                 id = elem.data('id');
 
             $.each( mdev.pagebuilder('module', 'keys'), function(index, id){
-            if(elem.hasClass(id+'-module')) module = id; });
+              index = id=='content'?'text':id;
+              if(elem.hasClass(index+'-module')) module = id; });
 
             datas[id] = $.extend(mdev.filter({
               id      : elem.attr('id'), 
               class   : mdev.pagebuilder(this, 'classes'), 
               design  : (html ? (json[id]?json[id]['design']:"") : arr[mdev.pagebuilder(this, 'class')]),
-              module  : module, 
+              module  : module
             }),json[id]);
 
           });
@@ -288,7 +297,6 @@
               });
             } }); $('.mdevpb-style').html(style);
 
-
           break;
 
         case 'elements':
@@ -304,6 +312,13 @@
 
           mdev.pagebuilder('data');
           mdev.pagebuilder('css');
+          mdev.module('.mdevpagebuilder');
+          container.find('.module-base').each(function(){
+            var clasz = mdev.pagebuilder(this, 'classes'), 
+                clasz = clasz.replace("module-base", ""), 
+                clasz = clasz.replace("module-", "").trim();
+            if(clasz) $(this).attr('data-class', clasz);
+          });
 
           break;
 
@@ -328,7 +343,7 @@
               index = rowdule ? 'section' : index,
               section = mdev.pagebuilder(parent, 'element'),
               element = $('<div/>', {class:'row mdevpb-temp'}).html($('<div/>', {class:'column'})), 
-              element = data.module ? $('<div/>', {class:elem.data('id')+'-module module mdevpb-module-temp'}).html($('<div/>', {class:'module-content'})) : element;
+              element = data.module ? $('<div/>', {class:elem.data('id')+'-module module mdevpb-module-temp'}).html($('<div/>', {class:'module-base'})) : element;
 
           $('.mdevpb-active').removeClass('mdevpb-active');
           mdev.pagebuilder('default-setting', {module: data.module});
@@ -358,7 +373,6 @@
 
           } else {
 
-            setting.find('.toggle').removeClass('open');
             setting.find('.mdevpb-content').children().hide();
             setting.fadeIn().find(index=='row'?'.mdevpb-structure':'.mdevpb-modules').show();
             setting.find('.mdevpb-heading').text('Insert '+index);
@@ -373,12 +387,13 @@
           var style = "", title = "",
               elem = elem.parents(':eq(1)'), 
               index = mdev.pagebuilder(elem, 'index'),
-              heading = ['h1','h2','h3','h4','h5'];
+              heading = ['h1','h2','h3','h4','h5'], 
+              modules = mdev.pagebuilder('module', 'data');
 
           $('.mdevpb-active').removeClass('mdevpb-active');
 
           elem.addClass('mdevpb-active');
-          data = mdev.pagebuilder('data', '%s');
+          data = mdev.pagebuilder('data', '%s'), 
 
           $.each( data, function ( index, value ) {
 
@@ -415,22 +430,25 @@
           if(data.module) {
 
             var elem = $('.mdevpb-active'),
-                content = elem.find('.module-content'),
+                content = elem.find('.module-base'),
                 title = elem.find('.module-title');
 
-            if(title.length)
-            setting.find('#heading-field input[value="'+title.prop("tagName").toLowerCase()+'"]').prop('checked',true);
+            if(title.length) {
+              title = title.prop("tagName").toLowerCase();
+              setting.find('#heading-field input[value="'+title+'"]').prop('checked',true);
+            }
 
             if(data.module=='blurb'&&elem.find('.module-icon').length)
             setting.find('#use_icon').prop('checked', true);
 
             setting.find('#placement').val(content.hasClass('module-left')?'Left':'Top');
 
-            if(data.module=='text') {
-              data.text = elem.find('.module-text').html();
-              data.text = data.text.replace(/\s\s+/g, "");
-              data.text = data.text.replace(/<br>/g, "\n");
-            }
+            if($.inArray('content', modules[data.module].elements) != -1
+            || data.module=='content') {
+              data.content = elem.find('.module-content').html();
+              data.content = data.content.replace(/\s\s+/g, "");
+              data.content = data.content.replace(/<br>/g, "\n");
+           }
 
           }  mdev.pagebuilder('module', data);
 
@@ -511,11 +529,9 @@
           mdev.pagebuilder(arr, 'data');
           mdev.pagebuilder('css');
 
-          console.log(arr);
-
           arr.id ? elem.attr('id', arr.id) : elem.removeAttr('id');
           arr.class = mdev.string(arr.class, "%s ", "");
-          arr.class = data.module ? arr.class+data.module+"-module " : arr.class;
+          arr.class = data.module ? arr.class+(data.module.replace('content','text'))+"-module " : arr.class;
           elem.attr('class', arr.class+index+"-"+i+" "+index+" mdevpb-active");
 
           break;
@@ -525,6 +541,7 @@
           var fg1 = ['select', 'textarea'], 
               fg2 = ['checkbox', 'radio'], 
               type = mdev.string(data.type, "text"), 
+              type = data.switch ? 'checkbox' : type,
               tag = $.inArray(type, fg1) != -1 ? type : "input",
               id = mdev.string(data.id, data.name), 
               id = (id+"-field").replace(/_/g, '-'),
@@ -544,7 +561,7 @@
               after = data.after,  
               field = $('<div/>', {
                 id: id, 
-                class: mdev.string(data.container_class, "%s ")+'mdevpb-field-'+type+" mdevpb-field-container", 
+                class: mdev.string(data.container_class, "%s ")+(data.for?'mdevpb-for-'+data.for+' mdevpb-none ':"")+'mdevpb-field-'+type+" mdevpb-field-container", 
               });
 
           elem.append(field.append(label.prepend(data.switch ? $('<span/>', {class:'mdevpb-field-switch-helper'}) : ""))
@@ -576,45 +593,47 @@
 
         case 'module':
 
-          var elem = $('.mdevpb-active'), 
-              content = elem.find('.module-content'),
+          var module = data.module,
+              elem = $('.mdevpb-active'), 
+              base = elem.find('.module-base'),
               modules = {
                 blurb : {
-                  elements: ['image','icon','title','text'] },
-                text : { 
-                  value : content.find('.module-text').html(),
+                  elements: ['image','icon','title','content'] },
+                content : { 
+                  value : base.find('.module-content').html(),
                   default : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.' }, 
                 image : { 
                   tag : 'img',
                   default : image, 
-                  value : content.find('.module-image').attr('src') },
+                  value : base.find('.module-image').attr('src') },
                 title : { 
-                  tag : 'h1',
                   default : 'Title Here', 
-                  value : content.find('.module-title').html() }, 
+                  value : base.find('.module-title').html() }, 
                 icon : { 
                   tag : 'i',
                   default : 'fa fa-user', 
-                  value : content.find('.module-icon').attr('class') },
+                  value : base.find('.module-icon').attr('class') },
+                toggle : { 
+                  elements: ['title','content'] },
               }; 
 
           if(data=='data') return modules;
           if(data=='keys') return Object.keys(modules);
 
           if(data.new) 
-          setting.find('#heading-field input[value="'+(data.module=='blurb'?'h4':'h2')+'"]').prop('checked',true);
+          setting.find('#heading-field input[value="'+(module=='title'?'h2':'h4')+'"]').prop('checked',true);
 
           if(!data.input) {
-           setting.find('.toggle').hide();
+           setting.find('.toggle-module').hide();
            setting.find('.default').show();
           } 
-
-          if(data.module) {
           
-            content.html("");
+          if(module) {
+          
+            base.html("");
 
-            $.each( modules[data.module]&&modules[data.module]['elements'] 
-            ? modules[data.module]['elements'] : [data.module], function ( index, module ) {
+            $.each( modules[module]&&modules[module]['elements'] 
+            ? modules[module]['elements'] : [module], function ( index, module ) {
 
               var element = modules[module],
                   tag = mdev.string(element['tag'], '%s', 'div'), 
@@ -623,13 +642,14 @@
                   value = module=='icon'&&!data.new&&value ? value.replace("module-icon ", "") : value, 
                   value = data.input ? setting.find('#'+module).val() : value, 
                   value = module=='image' && !value ? image : value, 
-                  value = module=='text'&&data.text ? data.text : value;
+                  value = module=='content'&&data.content ? data.content : value;
               
-              if(!data.input) setting.find('#'+module+'-toggle').show().addClass('open'); 
-              if(value) content.append($('<'+tag+'/>', {class:'module-'+module}));
+              if(!data.input) setting.find('#'+module+'-toggle')
+                .show().find('.module-base').addClass('module-open').find('.module-content').show(); 
+              if(value) base.append($('<'+tag+'/>', {class:'module-'+module}));
 
               setting.find('#'+module).val(value==image?"":value);
-              element = content.find('.module-'+module);
+              element = base.find('.module-'+module);
               
               switch(module) {
                 case 'image'  : element.attr('src', value); break;
@@ -641,17 +661,32 @@
               if(module=='image') setting.find('#image-field img').attr('src', mdev.string(value, image));    
               
             });
-        
-            if(data.module=='blurb') {
-              var use_icon = setting.find('#use_icon'), 
-                  placement = setting.find('#placement');
-              content.html("")
-                .append(use_icon.is(':checked') ? arr['icon'] : arr['image'])
-                .append($('<div/>', {class:'module-container'}).append(arr['title']).append(arr['text']));
-              use_icon.is(':checked') ? $('.icon-field').show() : $('.icon-field').hide();
-              placement.val()=='Left' ? content.addClass('module-left') : content.removeClass('module-left');
-              setting.find('#icon-toggle').hide();
+
+            switch(module) {
+              case 'blurb':
+                var use_icon = setting.find('#use_icon'), 
+                    placement = setting.find('#placement');
+                base.html("")
+                  .append(use_icon.is(':checked') ? arr['icon'] : arr['image'])
+                  .append($('<div/>', {class:'module-container'}).append(arr['title']).append(arr['content']));
+                use_icon.is(':checked') ? $('.icon-field').show() : $('.icon-field').hide();
+                placement.val()=='Left' 
+                  ? base.addClass('module-left').attr('data-class', 'module-left')  
+                  : base.removeClass('module-left').removeAttr('data-class');
+                setting.find('#icon-toggle').hide();
+                break;
+              case 'toggle':
+
+                var open = setting.find('#open');
+                if(data.input) open.is(':checked')  
+                    ? base.addClass('module-open').attr('data-class', 'open') 
+                    : base.removeClass('module-open').removeAttr('data-class');
+                else setting.find('#open').prop('checked', base.data('class')?true:false);
+                
+                break;
+
             }
+        
 
           }
 
@@ -670,11 +705,13 @@
                   label: 'Text', 
                   class: 'element'
                 },
-                text: {
+                content: {
                   fields: {
                     color: {class:'design'}, 
-                    font_size: {class:'design'}
+                    font_size: {class:'design'},
+                    open: {switch:true, for:'toggle'}, 
                   },
+                  toggle_label: 'Text', 
                   label: 'Content',
                   class: 'element', 
                   type: 'textarea'
@@ -685,8 +722,8 @@
                   after: '<img src="'+image+'">', 
                   fields: {
                     img_width: {class:'design2'}, img_height: {class:'design2'}, 
-                    use_icon: {type:'checkbox', switch:true, container_class:'mdevpb-blurb mdevpb-none'}, 
-                    placement: {type:'select', options:['Top','Left'], container_class:'mdevpb-blurb mdevpb-none'} 
+                    use_icon: {switch:true, for:'blurb'}, 
+                    placement: {type:'select', options:['Top','Left'], for:'blurb'} 
                   }
                 }, 
                 icon: {
@@ -759,9 +796,11 @@
           }
 
           $.each( mdev.pagebuilder('module', 'keys'), function ( index, module ) {
-            $('.mdevpb-modules').append($('<div/>', {'data-id':module, html:$('<span/>',{text:module})}).click(function(){
+
+            $('.mdevpb-modules').append($('<div/>', {'data-id':module, html:$('<span/>',{text:module=='content'?'text':module})}).click(function(){
               mdev.pagebuilder(this, {caze:'add', module:module});
               mdev.pagebuilder('module', {module:module, new:true});
+              setting.find('#heading-field input[value="'+(module=='title'?'h2':'h4')+'"]').prop('checked',true);
               $('.mdevpb-modules').hide();
               $('.mdevpb-fields').show();
             }));
@@ -772,12 +811,13 @@
             value.name = index;
             value.caze = 'field';
 
-            $('.mdevpb-fields').append($('<div/>', {id:index+"-toggle", class:mdev.string(value.toggle_class,'%s ')+"toggle"})
-              .append($('<div/>', {class:"toggle-title", text:mdev.string(value.toggle_label, index)}))
-              .append($('<div/>', {class:"toggle-content"}))
-            );
+            $('.mdevpb-fields').append($('<div/>', {id:index+"-toggle", class:mdev.string(value.toggle_class,'%s ')+"toggle-module"})
+              .append($('<div/>', {class:"module-base"})
+                .append($('<h4/>', {class:"module-title", text:mdev.string(value.toggle_label, index)}))
+                .append($('<div/>', {class:"module-content"}))
+            ));
 
-            el = '#'+index+"-toggle .toggle-content";
+            el = '#'+index+"-toggle .module-content";
             if(!value.toggle_class) mdev.pagebuilder(el, value);
             if(value.fields) $.each( value.fields, function ( index2, value ) {
               value.name = index2;
@@ -787,6 +827,17 @@
 
           });
 
+          $('.mdevpb-fields .mdevpb-field').each(function(){ 
+            var action = 
+            $(this).is(':checkbox') 
+            || $(this).is(':radio') 
+            || $(this).is('select') ? 'change' : 'keyup';
+            $(this).on(action, function(){ 
+              mdev.pagebuilder(this, 'input'); 
+            }); 
+          });
+
+          mdev.module('.mdevpb-settings', 'toggle');
 
           $('body').append($('<button/>', {class:'mdevpb-save', text:'Save'}))
           $('.mdevpb-save').click(function(){
@@ -796,25 +847,30 @@
               .append($('<div/>', {class:'mdevpb-content-html', html:$('.mdevpagebuilder').html()}))
             );
 
-            $.each( $.merge((elems+",.module-content,.module-container").split(","), mdev.pagebuilder('module', 'keys')), function ( index, el ) {
+
+
+            $.each( $.merge((elems+",.module-base,.module-container").split(","), mdev.pagebuilder('module', 'keys')), function ( index, el ) {
               $('.mdevpb-content-html').find(el!='section'&&el.slice(0,1)!="." ? ".module-"+el:el).each(function(){
-                var elem = $(this),  i = elem.index(); parent = elem.parent(),
-                    id = elem.attr('id'), clasz = elem.attr('class'),
+                var elem = $(this),  
+                    i = elem.index(); 
+                    parent = elem.parent(),
+                    id = elem.attr('id'), 
+                    clasz = elem.attr('class'),
                     src = elem.attr('src'), content = elem.html(),
                     index = mdev.pagebuilder(this, 'index'), 
-                    index = el=='.module-content' ? "m-content" : index,
+                    index = el=='.module-base' ? "m-content" : index,
                     index = index ? index : "m-element", 
                     container = parent.hasClass('module-container');  
-  
+
                 $('.mdevpb-cancel-sort, .mdevpb-handle', this).remove();
-                elem.removeAttr('id').removeAttr('class').removeAttr('src').removeAttr('data-id');
-                
+                elem.removeAttr('id').removeAttr('class').removeAttr('src').removeAttr('data-id').removeAttr('style');
+
                 if(index=='section') {
                   i==0 ? elem.before('@%section') : "";
                   elem.append('@%lb').after('@%lb');
                 } else elem.attr('index', index).append('@%'+index);
                 
-                if(el=='text') {
+                if(el=='content') {
                   var i = 1, nc = "",
                       content = content.split('<br>');
                   $.each( content, function ( index, value ) {
@@ -823,6 +879,10 @@
                 }
 
                 if(container) elem.attr('space', 1);
+                if(el=='.module-base') {
+                  elem.attr('class', 'module-base'+mdev.string(clasz, " %s"));
+                  elem.removeAttr('data-class');
+                }
 
                 elem.attr('id', id);
                 elem.attr('src', src);
@@ -870,27 +930,17 @@
 
           });
 
-          $('.mdevpb-fields .mdevpb-field').each(function(){ 
-            var action = 
-            $(this).is(':checkbox') 
-            || $(this).is(':radio') 
-            || $(this).is('select') ? 'change' : 'keyup';
-            $(this).on(action, function(){ 
-              mdev.pagebuilder(this, 'input'); 
-            }); 
-          });
-
           break;
 
         case 'default-setting':
           
-          setting.find('.toggle').removeClass('open');
+       //   setting.find('.module-base').removeClass('open');
           setting.find('.mdevpb-content').children().hide();
           setting.find('.mdevpb-fields').removeAttr('data-module');
           setting.find('#background-toggle img').attr('src', image);
-          setting.find('#icon-toggle .toggle-content').append($('.icon-field').show());
+          setting.find('#icon-toggle .module-content').append($('.icon-field').show());
           setting.find('.mdevpb-none.mdevpb-field-container').hide();
-          setting.find('.mdevpb-'+data.module).show();
+          setting.find('.mdevpb-for-'+data.module).show();
 
           $('.mdevpb-fields .mdevpb-field').each(function(){
             var field = $(this), 
@@ -924,8 +974,6 @@
           mdev.pagebuilder('setting');
           mdev.pagebuilder('elements');
           mdev.pagebuilder('sortable');
-          mdev.module('.toggle', 'toggle');
-
           break;
 
       }
@@ -937,5 +985,8 @@
   $(document).ready(function() { 
     
     if(mdev.get('mdevpagebuilder')) mdev.pagebuilder();
+      
+        //  mdev.module('toggle');
+    
 
 }); })(jQuery)

@@ -15,7 +15,7 @@ section {
 
 .column {
     position: relative;
-    margin-right: 30px;
+    margin-right: 60px;
     width: 100%;
 }
 
@@ -45,59 +45,14 @@ section {
     margin-bottom: 30px;
 }
 
-.toggle {
-    background-color: #f4f4f4;
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
-    position: relative;
-}
-
-.toggle-title {
-    margin: 0;
-    position: relative;
-    cursor: pointer;
-    padding: 15px;
-    font-weight: normal;
-}
-
-.toggle-title:after {
-    content: "\f13a";
-    font-weight: 900;
-    font-family: "Font Awesome 6 Free";
-    position: absolute;
-    font-size: 15px;
-    color: #607D8B;
-    right: 20px;
-    top: 50%;
-    margin-top: -.5em;
-}
-
-.toggle:hover .toggle-title:after, 
-.toggle.open .toggle-title:after {
-    color: #2196F3;
-}
-
-.toggle-content {
-    display: none;
-    padding: 0 15px 15px;
-}
-
-.toggle.open {
-    background: #FFF;
-}
-
-.toggle.open .toggle-title:after {
-    content: "\f139";
-}
-
-.toggle.open .toggle-content {
-    display: block;
-}
-
 .module:last-child, 
 .toggle:last-child, 
 .mdevpagebuilder .module:nth-last-child(2) {
     margin-bottom: 0;
+}
+
+.module-content {
+    position: relative;
 }
 
 .module-icon {
@@ -112,11 +67,11 @@ section {
 
 .module-title {
     margin: 0;
-    padding: 0;
+    padding-bottom: 10px;
 }
 
-.blurb-module .module-title {
-    margin-bottom: 10px;
+.title-module .module-title {
+    padding-bottom: 0;
 }
 
 .blurb-module .module-image, 
@@ -138,6 +93,105 @@ section {
 
 .blurb-module .module-left .module-container {
     overflow: hidden;
+}
+
+.as-table {
+    display: table;
+    width: 100%;
+    height: 100%;
+}
+  
+.as-table-cell {
+    display: table-cell;
+    vertical-align: middle;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-module-open {
+    overflow: hidden;
+}
+  
+.modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background: #0000008a;
+    padding: 30px;
+    overflow: auto;
+    height: 100%;
+    z-index: 9999;
+}
+  
+.modal-base {
+    width: 800px;
+    margin: 0 auto;
+    position: relative;
+}
+  
+.modal-content {
+    background: #FFF;
+    padding: 40px;
+    border-radius: 10px;
+}
+  
+.modal .modal-a {
+    position: absolute;
+    right: 5px;
+    top: 3px;
+    font-size: 22px;
+    color: #f25e54;
+}
+  
+.modal .modal-a:hover {
+    color: #555 !important;
+}
+
+.toggle-module {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    position: relative;
+}
+
+.toggle-module .module-title {
+    margin: 0;
+    position: relative;
+    cursor: pointer;
+    padding: 15px;
+    font-weight: normal;
+}
+
+.toggle-module .module-title:after {
+    content: "\f13a";
+    font-weight: 900;
+    font-family: "Font Awesome 6 Free";
+    position: absolute;
+    font-size: 15px;
+    color: #607D8B;
+    right: 20px;
+    top: 50%;
+    margin-top: -.5em;
+}
+
+.toggle-module:hover .module-title:after, 
+.toggle-module .module-open .module-title:after {
+    color: #2196F3;
+}
+
+.toggle-module .module-content {
+    display: none;
+    padding: 0 15px 15px;
+}
+
+.toggle-module .module-open .module-title:after {
+    content: "\f139";
+}
+
+.toggle-module .module-open .module-content {
+    display: block;
 }
 
 /* mdevpagebuilder ***/
@@ -590,9 +644,17 @@ input[type=radio].mdevpb-field:checked:before {
     width: 100%;
     display: block;
     padding: 15px;
-    background: #607D8B;
+    background-color: #607D8B;
     margin: 2px;
     border-radius: 3px;
+}
+
+.mdevpb-fields .toggle-module {
+    margin-bottom: 10px;
+}
+
+.mdevpb-fields .toggle-module:last-child {
+    margin-bottom: 0;
 }
 
 .mdevpb-fields img {
@@ -600,33 +662,38 @@ input[type=radio].mdevpb-field:checked:before {
     margin-top: 5px;
 }
 
-.mdevpb-fields .toggle-title {
+.mdevpb-fields .module-title {
     text-transform: capitalize;
     font-size: 15px;
 }
 
-.mdevpb-fields .open .toggle-title {
+.mdevpb-fields .module-content {
+    padding: 25px;
+}
+
+.mdevpb-fields .module-open .module-title {
     background-color: #f4f4f4;
     border-bottom: 1px solid #ddd;
 }
 
-.mdevpb-fields .toggle-content {
-    padding: 25px;
+.mdevpb-fields .module-open .module-content {
+    background-color: #FFF;
 }
 
 .mdevpb-field-container:last-child {
     margin-bottom: 0;
 }
 
-.mdevpb-fields .toggle .mdevpb-field-label {
+.mdevpb-fields .mdevpb-field-label {
     background: #f4f4f4;
 }
 
-.mdevpb-fields .open .mdevpb-field-label {
+.mdevpb-fields .module-open .mdevpb-field-label {
     background: #FFF;
 }
 
-.mdevpb-fields[data-module=image] #img-height-field {
+.mdevpb-fields[data-module=image] #img-height-field,
+.mdevpb-fields #font-size-field {
     margin-bottom: 0;
 }
 
@@ -649,4 +716,9 @@ input[type=radio].mdevpb-field:checked:before {
     background: #2196F3;
     color: #FFF;
     cursor: pointer;
+    
+}
+
+.mdevpb-fields #content-toggle #font-size-field {
+    margin-bottom: 25px;
 }
