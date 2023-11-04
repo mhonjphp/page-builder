@@ -19,13 +19,18 @@
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script src="script.js?time=<?php echo time(); ?>" type="text/javascript"></script>
-  </head>
+
   <body>
    
     <div class="content">
     <section class="section-1">
   <div class="row-1 row">
     <div class="column-1 column">
+      <div class="icon-module module-1 module">
+        <div class="module-base">
+          <i class="module-icon fa fa-user"></i>
+        </div>
+      </div>
       <div class="toggle-module module-3 module">
         <div class="module-base module-open">
           <h4 class="module-title">Title Here</h4>
