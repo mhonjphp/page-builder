@@ -13,7 +13,7 @@
     },
 
     print: function(arr){
-      return JSON.stringify(arr,null,'\t').replace(/\n/g,'<br>').replace(/\t/g,'&nbsp;&nbsp;&nbsp;'); 
+      return JSON.stringify(arr,null,'\t').replace(/\t/g,'   '); 
     }, 
 
     filter: function(arr) {
@@ -72,34 +72,66 @@
       return $('<div/>').addClass(classname+'mdevpb-'+status).html(message);
     },
 
-    module_action: function(el, module) {
+    module: function(el, module, action) {
 
-      var elem = $($(el).length?el:"."+el+"-module");
-          module = $(el).length ? module : el;
+      if(action) {
+        
+        var clasz = module+'-module';
+        elem = $(el).length ? $(el).find('.'+clasz) : $('.'+clasz);
+        elem = $(el).hasClass(clasz) ? $(el) : elem;
 
-      switch(module) {
-        case 'toggle':
+        switch(module) {
 
-          (elem.hasClass('mdevpb-handle') ? elem : elem.find('.module-title')).click(function(){
-            var parent = $(this).parent(), 
-                parent = $(this).hasClass('mdevpb-handle') ? parent.find('.module-base') : parent;
-            parent.hasClass('module-open') 
-              ? parent.removeClass('module-open').find('.module-content').slideUp()
-              : parent.addClass('module-open').find('.module-content').slideDown();
-          });
-          break;
-      }
-    },
+          case 'modal':
+  
+            elem.find('.module-title').parent().click(function(e){
+            
+              var parent = $(this).parent(),
+                  content = parent.find('.module-content');
+              
+              $('body').addClass('modal-module-open');
+              if(!parent.find('.module-container').length)
+              content.replaceWith($('<div/>', {
+                class: 'module-container', 
+                html: $('<div/>', { class: 'module-inner'})
+                  .append($('<div/>', {
+                    class: 'module-table', 
+                    html: $('<div/>', {
+                      class: 'module-cell', 
+                      html: $('<div/>', {class: 'module-content'})
+                        .append($('<a/>', {href:"#", class:'module-close', html:$('<i/>', {class:'fa fa-times-circle'})}))
+                        .append(content.html())
+                    })
+                  }))
+              })); 
+              
+              parent.find('.module-content').click(function(e){ e.stopPropagation(); });
+              parent.find('.module-container, .module-close').click(function(e){
+                $('body').removeClass('modal-module-open');
+                parent.find('.module-container').after(parent.find('.module-content'));
+                parent.find('.module-container, .module-close').remove();
+                e.preventDefault();
+              }); e.preventDefault();
+  
+            }); break;
+  
+          case 'toggle':
+  
+            (elem.hasClass('mdevpb-handle') ? elem : elem.find('.module-title')).click(function(){
+              var parent = $(this).parent(), 
+                  parent = $(this).hasClass('mdevpb-handle') ? parent.find('.module-base') : parent;
+              parent.hasClass('module-open') 
+                ? parent.removeClass('module-open').find('.module-content').slideUp()
+                : parent.addClass('module-open').find('.module-content').slideDown();
+            });
+  
+            break;
+        }
 
-    module: function(el, module) {
 
-      module = $(el).length && !module ? 'all' : module;
-      elem = module && !$(el).hasClass(module+'-module') ? $(el).find('.'+module+'-module') : el, 
-      elem = $(el).hasClass('mdevpb-handle') ? el : el;
-
-      if(module=='all') $.each( ['toggle'], 
-      function ( index, module ) { mdev.module(elem, module); });
-      else mdev.module_action(elem, module);
+      } else module ? mdev.module(el, module, true)
+        : $.each( ($(el).length ? ['modal', 'toggle'] : [el]), function ( index, module ) { 
+          mdev.module($(el), module, true);  });
 
     },
 
@@ -323,7 +355,7 @@
           mdev.pagebuilder('data');
           mdev.pagebuilder('css');
           mdev.module('.mdevpagebuilder');
-          mdev.module('.toggle-module .mdevpb-handle', 'toggle');
+        //  mdev.module('.toggle-module .mdevpb-handle', 'toggle');
 
           container.find('.module-base').each(function(){
             var clasz = mdev.pagebuilder(this, 'classes'), 
@@ -406,9 +438,6 @@
           elem.addClass('mdevpb-active');
           data = mdev.pagebuilder('data', '%s');
 
-          console.log('data >>>>');
-          console.log(data);
-
           $.each( data, function ( index, value ) {
 
             if(mdev.isobject(value))
@@ -436,9 +465,7 @@
           });
           
           arr['style'] = style;
-          mdev.pagebuilder('default-setting', arr);
-          console.log('edit >>>>');
-          console.log(arr);
+          mdev.pagebuilder('default-setting', arr)
 
           setting.fadeIn().find('.mdevpb-fields').show();
           setting.find('.mdevpb-heading').text(mdev.string(data.module, index)+" Settings");
@@ -446,19 +473,20 @@
           if(data.module) {
 
             var elem = $('.mdevpb-active'),
-                content = elem.find('.module-base');
+                content = elem.find('.module-base'), 
+                modules = modules[data.module].modules;
 
-            // if(data.module=='blurb'&&elem.find('.module-icon').length)
-            // setting.find('#use_icon').prop('checked', true);
-
-            // setting.find('#placement').val(content.hasClass('module-left')?'Left':'Top');
-
-            if($.inArray('content', modules[data.module].modules) != -1
+            if($.inArray('content', modules) != -1
             || data.module=='content') {
               data.content = elem.find('.module-content').html();
               data.content = data.content.replace(/\s\s+/g, "");
               data.content = data.content.replace(/<br>/g, "\n");
-            } mdev.pagebuilder('module', $.extend(data, arr));
+            } 
+
+            $.each( modules, function ( index, module ) { 
+            arr[module+"_link"] = elem.find('.module-'+module).parent().attr('href'); });
+            
+            mdev.pagebuilder('module', $.extend(data, arr));
 
           }  
 
@@ -526,7 +554,7 @@
               } else arr[name] = value.replace(/</g, ""); 
             }
             
-            if(field.hasClass('element')) 
+            if(field.hasClass('element'))
             mdev.pagebuilder('module', {input:true, module:data.module});
 
           });
@@ -589,12 +617,10 @@
                 class: mdev.string(data.container_class, "%s ")+'mdevpb-field-'+type+" mdevpb-field-container", 
               });
 
-          if(data.for) data.for==data.module ?elem.append(field.append(label.prepend(data.switch ? $('<span/>', {class:'mdevpb-field-switch-helper'}) : "")).append(input).append(after)) : "";
-          else elem.append(field.append(label.prepend(data.switch ? $('<span/>', {class:'mdevpb-field-switch-helper'}) : "")).append(input).append(after));
-
+          if(data.for&&data.for==data.module||!data.for)
+          elem.append(field.append(label.prepend(data.switch ? $('<span/>', {class:'mdevpb-field-switch-helper'}) : "").prepend($.inArray(type, fg2) != -1?input:"")).append($.inArray(type, fg2) != -1?"":input).append(after));
+              
           elem = setting.find('#'+id);
-          if($.inArray(type, fg2) != -1) elem.find('label').prepend(input);
-
           if(data.options) {
             var el = data.value;
             if(type!='select') elem.find(input).remove();
@@ -641,13 +667,14 @@
             }  else {
               
               var fields = {}, mdata = module[index],
-                  vdata = $.extend({module:data.module, field:data.field, clasz:data.clasz, for:data.for}, value),
+                  vdata = $.extend({module:data.module, field:data.field, container_class:data.container_class, for:data.for}, value),
                   cdata = $.extend({class:'design2'}, vdata);
 
               if(index=='cfz') {
-               fields[data.field+"_color"] = cdata;
-               fields[data.field+"_font_size"] = cdata;
-               mdev.pagebuilder(elem, {caze:'fields', fields:fields}); 
+                fields[data.field+"_link"] = $.extend(vdata, {class:'url', label:'Link'});
+                fields[data.field+"_color"] = cdata;
+                fields[data.field+"_font_size"] = cdata;
+                mdev.pagebuilder(elem, {caze:'fields', fields:fields}); 
               } else if(mdata&&!value.main) {
                 fields[index] = true;
                 mdev.pagebuilder(elem, $.extend({fields:fields, caze:'fields'}, vdata));
@@ -667,19 +694,8 @@
               title = base.find('.module-title'),
               modules = {
                 blurb : {
-                  modules: ['image','icon','title','content'] 
+                  modules: ['image','title','content'] 
                 },
-                content : { 
-                  label: 'Body',
-                  class: 'element', 
-                  type: 'textarea',
-                  value : base.find('.module-content').html(),
-                  fields: {
-                    cfz: true,
-                    checkbox1: {switch:true, label:'Default to Open', for:'toggle', class:'xd'}
-                  },
-                  default : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.' 
-                }, 
                 image : { 
                   tag : 'img', 
                   label: 'URL', 
@@ -688,10 +704,11 @@
                   after: '<img src="'+image+'">', 
                   value : base.find('.module-image').attr('src'),
                   fields: {
+                    image_link: {class: 'url', label:'Link'},
                     image_width: {class: 'design2'},
                     image_height: {class: 'design2'}, 
                     checkbox1: {switch:true, label:'Use Icon', for:'blurb', class:'xd'}, 
-                    icon: {for: 'blurb', clasz:'icnfld'},
+                    icon: {for: 'blurb', container_class:'icnfld'},
                     select1: {label: 'Placement', options:['Top','Left'], for:'blurb', class:'xd'} 
                   } 
                 },
@@ -707,11 +724,23 @@
                 modal : { 
                   modules: ['title','content']
                 }, 
-                title : {label: 'Text', 
+                content : { 
+                  label: 'Body',
+                  class: 'element', 
+                  type: 'textarea',
+                  value : base.find('.module-content').html(),
+                  fields: {
+                    cfz: true,
+                    checkbox1: {switch:true, label:'Default to Open', for:'toggle', class:'xd'}
+                  },
+                  default : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.' 
+                }, 
+                title : {
                   class: 'element',
-                  default: 'Title Here', 
+                  label: 'Text', 
+                  default: (module=='modal'?'Label':'Text')+' Here', 
                   value: base.find('.module-title').html(), 
-                  tag: data.new?(module=='title'?'h2':'h4'):(data.input?$('#heading-field input:checked').val():(title.length?title.prop("tagName").toLowerCase():"")),
+                  tag: module=='modal'?'span':(data.new?(module=='title'?'h2':'h4'):(data.input?$('#heading-field input:checked').val():(title.length?title.prop("tagName").toLowerCase():""))),
                   fields: {
                     heading: {type:'radio', options:headings, class:'xd'}, 
                     cfz: true
@@ -721,7 +750,6 @@
                   modules: ['title','content'] 
                 }
               }; 
-
 
           if(data=='data') return modules;
           if(data=='keys') return Object.keys(modules);
@@ -756,26 +784,40 @@
             mdev.pagebuilder('values', data);
 
           } 
-          
-          setting.find('#heading-field input[value="'+(modules.title.tag)+'"]').prop('checked',true);
+
+          if(data.new && module=='modal') {
+            var id = '#modal';
+            data.title_link = id;
+            setting.find('#title_link').val(id);
+          }
+
           base.html("");
 
-          $.each( modules[module]&&modules[module]['modules'] 
-          ? modules[module]['modules'] : [module], function ( index, module ) {
+          setting.find('#content-link-field').remove();
+          setting.find('#heading-field input[value="'+(modules.title.tag)+'"]').prop('checked',true);
+          
+          setting.find('.element').each(function(){
 
-            var element = modules[module],
+            var module = $(this).attr('name'), 
+                element = modules[module],
                 tag = mdev.string(element['tag'], '%s', 'div'), 
                 value = data.new ? element['default'] : element['value'], 
                 value = module=='icon'&&!data.new&&value ? value.replace("module-icon ", "") : value, 
                 value = data.input ? setting.find('#'+module).val() : value, 
                 value = module=='image' && !value ? image : value, 
-                value = module=='content'&&data.content ? data.content : value;
-              
-            if(!data.input) setting.find('#'+module+'-toggle')
-              .show().find('.module-base').addClass('module-open').find('.module-content').show(); 
-            if(value) base.append($('<'+tag+'/>', {class:'module-'+module}));
+                value = module=='content'&&data.content ? data.content : value, 
+                link = setting.find('#'+module+"_link"),
+                element = $('<'+tag+'/>', {class:'module-'+module});
 
+            if(!data.input) {
+              setting.find('#'+module+'-toggle')
+              .show().find('.module-base').addClass('module-open').find('.module-content').show(); 
+              link.val(data[module+'_link']);
+            }
+
+            if(value) base.append(link.val()?$('<a/>',{href:link.val(), html:element}):element);
             setting.find('#'+module).val(value==image?"":value);
+
             element = base.find('.module-'+module);
               
             switch(module) {
@@ -783,26 +825,30 @@
               case 'icon'   : element.attr('class', 'module-icon '+value); break;
               default       : element.html(value.replace(/\n/g, "<br>")); break;
             } if(value) arr[module] = element;
-              
-            if(data.new && module=='image') setting.find('#image').val("");   
-            if(module=='image') setting.find('#image-field img').attr('src', mdev.string(value, image));    
+
+            if(module=='image') 
+            setting.find('#image-field img').attr('src', mdev.string(value, image));    
               
           });
 
           var select1 = setting.find('#select1'), 
               checkbox1 = setting.find('#checkbox1'), 
-              icon = elem.find('.module-icon'); 
+              title = elem.find('.module-title'),
+              icon = elem.find('.module-icon'),
+              content = elem.find('.module-content'); 
 
           switch(module) {
 
               case 'blurb':
 
                 var imgicn = icon.length ? (data.new?'image':'icon') : 'image', 
-                    imgicn = data.input ? (checkbox1.is(':checked') ? 'icon' : 'image') : imgicn;
+                    imgicn = data.input ? (checkbox1.is(':checked') ? 'icon' : 'image') : imgicn, 
+                    link = setting.find('#'+imgicn+"_link").val(), 
+                    title = setting.find('#title_link').val();
 
                 base.html("")
-                  .append(arr[imgicn])
-                  .append($('<div/>', {class:'module-container'}).append(arr['title']).append(arr['content']));
+                  .append(link?$('<a/>', {href:link, html:arr[imgicn]}):arr[imgicn])
+                  .append($('<div/>', {class:'module-container'}).append(title?$('<a/>', {href:title, html:arr['title']}):arr['title']).append(arr['content']));
 
                 checkbox1.prop('checked', imgicn=='icon'?true:false);
                 imgicn=='icon' ? setting.find('.icnfld').show() : setting.find('.icnfld').hide();
@@ -811,6 +857,16 @@
                 select1.val()=='Left' 
                   ? base.addClass('module-left').attr('data-class','left')
                   : base.removeClass('module-left').removeAttr('data-class');
+
+                if(!setting.find('#image').val()&&!data.new) base.find('.module-image').remove();
+
+                break;
+
+              case 'modal':
+
+                setting.find('#heading-field').remove();
+                setting.find('#title-link-field').hide();
+                setting.find('#title-field label span').text('Label');
 
                 break;
 
@@ -822,17 +878,18 @@
                   ? base.addClass('module-open').attr('data-class','open')
                   : base.removeClass('module-open').removeAttr('data-class');
 
+                $('#title-link-field').remove();
 
                 break;
 
           } 
-          
-          
+      
           break;
 
         case 'setting':
 
-          var toggle = {
+          var content = "", 
+              toggle = {
                 background: {
                   fields: {
                     background_image: {label: 'Image', class: 'url design',  after: '<img src="'+image+'">'},
@@ -911,7 +968,6 @@
             ));
 
             el = '#'+index+"-toggle .module-content";
-            if(!field.toggle_class) mdev.pagebuilder(el, field);
             if(field.fields) $.each( field.fields, function ( index2, field ) {
               field.caze = 'field';
               field.name = field.class&&(field.class).indexOf("design2") >= 0 ? index+"_"+index2 : index2;
@@ -923,8 +979,13 @@
           mdev.pagebuilder('.mdevpb-fields', 'input');
           mdev.module('.mdevpb-settings');
 
-          $('body').append($('<button/>', {class:'mdevpb-save', text:'Save'}))
-          $('.mdevpb-save').click(function(){
+          $('body').append(
+            $('<div/>', {class:'mdevpb-ok'})
+            .append($('<button/>', {class:'mdevpb-save', text:'Save'}))
+            .append($('<a/>', {href:location, text:'Exit Builder'}))
+          );
+
+         $('.mdevpb-save').click(function(){
             
             $('.mdevpb-contents').remove();
             $('body').append($('<div/>', {class:'mdevpb-contents'})
@@ -932,92 +993,79 @@
               .append($('<textarea/>',{val:'<style type="text/css" class="mdevpb-style">\n\n'+$('.mdevpb-style').html()+'</style>', readonly:true}))
             );
 
-            $.each( $.merge((elems+",.module-base,.module-container").split(","), mdev.pagebuilder('module', 'keys')), function ( index, el ) {
-              $('.mdevpb-content-html').find(el!='section'&&el.slice(0,1)!="." ? ".module-"+el:el).each(function(){
-                var elem = $(this),  
-                    i = elem.index(); 
-                    parent = elem.parent(),
-                    id = elem.attr('id'), 
-                    clasz = elem.attr('class'),
-                    src = elem.attr('src'), content = elem.html(),
-                    index = mdev.pagebuilder(this, 'index'), 
-                    index = el=='.module-base' ? "m-content" : index,
-                    index = index ? index : "m-element", 
-                    container = parent.hasClass('module-container');  
+            arr = mdev.pagebuilder('view', 'section');
+            content = mdev.pagebuilder('view', {preview:true, arr:arr});
+            $('.mdevpb-content-html').replaceWith($('<textarea/>',{val:content+mdev.print(arr), readonly:true}));
 
-                $('.mdevpb-cancel-sort, .mdevpb-handle', this).remove();
-                elem.removeAttr('id').removeAttr('class').removeAttr('src').removeAttr('data-id').removeAttr('style');
+          }); break;
 
-                if(index=='section') {
-                  i==0 ? elem.before('@%section') : "";
-                  elem.append('@%lb').after('@%lb');
-                } else elem.attr('index', index).append('@%'+index);
-                
-                if(el=='content') {
-                  var i = 1, nc = "",
-                      content = content.split('<br>');
-                  $.each( content, function ( index, value ) {
-                  nc += '@%lb@%s6'+(container?"@%s1":"")+value+(i==content.length?"@%lb":"<br>"); i++; });
-                  elem.html(nc+'@%s5'+(container?"@%s1":""));
-                }
+        case 'view':
 
-                if(container) elem.attr('space', 1);
-                if(el=='.module-base') {
-                  clasz = 'module-base'+mdev.string(elem.data('class'), " module-%s")
-                  elem.removeAttr('data-class');
-                }
+          if(data.preview) {
 
-                elem.attr('id', id);
-                elem.attr('src', src);
-                elem.attr('class', clasz);
-                elem.removeClass('ui-sortable mdevpb-active');
-                
-              });
+            html = "";
+            $.each( data.arr, function ( index, section ) {
+              html += '<section'+mdev.string(section.id, ' id="%s"')+' class="'+section.class+'">\n';
+              $.each( section.row, function ( index, row ) {
+                html += '  <div'+mdev.string(row.id, ' id="%s"')+' class="'+row.class+'">\n';
+                $.each( row.column, function ( index, column ) {
+                  html += '    <div'+mdev.string(column.id, ' id="%s"')+' class="'+column.class+'">\n';
+                  $.each( column.module, function ( index, content ) {
+                    html += '      <div'+mdev.string(content.id, ' id="%s"')+' class="'+content.class+'">\n';
+                      html += '        <div class="'+content.base+'">\n';
+                      $.each( content.content, function ( index, module ) {
+                        var sp1 = index=='title'&&content.container?"  ":"";
+                        html += (index=='content'&&content.container?"  ":"")+'          '+(index=='title'&&content.container?'<div class="module-container">\n            ':"")+(module.link?'<a href="'+module.link+'">\n            ':"")+sp1+'<'+module.tag+mdev.string(module.id, ' id="%s"')+mdev.string(module.src, ' src="%s"')+' class="'+module.class+'">';
+                        html += module.content;
+                        html += (index=='image'?"":'</'+module.tag+'>')+(module.link?'\n          '+sp1+'</a>':"")+(index=='content'&&content.container?'\n          </div>':"")+'\n';
+                      }); html += '        </div>\n';
+                    html += '      </div>\n';
+                  }); html += '    </div>\n';
+                }); html += '  </div>\n';
+              }); html += '</section>\n';
+            }); arr = html;
 
-            });
+          } else {
 
-            content = $('.mdevpb-content-html').html();
-            content = content.split('@%section')[1];
-            content = content.replace(/\n/g, "");
-            content = content.replace(/\s\s+/g, "");
+            $('.mdevpb-content-html').find(data).each(function(i){
+              var elem = $(this);
 
-            $.each( ['row','column','module','m-content','m-element'], function ( index, elem ) {
-              var string1 = '<div index="'+elem+'"', 
-                  string2= '@%'+elem+'</div>', 
-                  regExp1 = new RegExp(string1,'g'), 
-                  regExp2 = new RegExp(string2,'g'), 
-                  space = elem=='row'?"  ":"          ";
-                  space = elem=='column'?"    ":space,
-                  space = elem=='module'?"      ":space,
-                  space = elem=='m-content'?"        ":space;
-              content = content.replace(regExp1, '\n'+space+'<div');
-              content = content.replace(regExp2, '\n'+space+'</div>');
-            });
-            
-            $.each( $.merge(headings, ['i','img']), function ( index, element ) {
-              var regExp1 = new RegExp('<'+element+' index="m-element"','g'), 
-                  regExp2 = new RegExp('@%m-element</'+element+'>','g'), 
-                  regExp3 = new RegExp('<'+element+' space="1"','g');
-              content = content.replace(regExp1, '\n          <'+element);
-              content = content.replace(regExp2, '</'+element+'>');
-              content = content.replace(regExp3, '  <'+element);
-            });
+              elem.removeClass('ui-sortable');
+              elem.removeClass('mdevpb-active');
+              elem.removeClass('section');
+              arr[i] = {};
+              arr[i].id = elem.attr('id');
+              arr[i].class = elem.attr('class');
+              if(data=='section') arr[i]['row'] = mdev.pagebuilder('view', $('.row', this));
+              if(elem.hasClass('row')) arr[i]['column'] = mdev.pagebuilder('view', $('.column', this));
+              if(elem.hasClass('column')) arr[i]['module'] = mdev.pagebuilder('view', $('.module', this));
+              if(elem.hasClass('module')) {
+                arr[i]['content'] = {};
+                $.each( ['image','icon','title','content'], function ( index, module ) {
+                  index = elem.find('.module-'+module);
+                  if(index.length) arr[i]['content'][module] = {
+                    id: index.attr('id'), 
+                    class: index.attr('class'),
+                    content: index.html(),
+                    src: index.attr('src'),
+                    tag: index.prop("tagName").toLowerCase(), 
+                    link: index.parent().attr('href'), 
+                    module: module
+                  };
+                });
 
-            content = content.replace(/@%lb/g, '\n');
-            content = content.replace(/@%s6/g, "            ");
-            content = content.replace(/@%s5/g, "          ");
-            content = content.replace(/@%s1/g, "  ");
-            content = content.replace(/<div space="1"/g, "  <div");
+                arr[i].base = elem.find('.module-base').attr('class');
+                if(elem.find('.module-container').length) arr[i].container = true;
 
-            $('.mdevpb-content-html').replaceWith($('<textarea/>',{val:content, readonly:true}));
+              }
 
-          });
+            }); arr = mdev.filter(arr)
+
+          }  return arr;
 
           break;
 
         case 'values':
-          console.log('values >>>>>>>>>>>')
-          console.log(data);
 
           $('.mdevpb-fields .mdevpb-field').each(function(){
             var field = $(this), 
@@ -1026,8 +1074,10 @@
             if(field.is(':checkbox') || field.is(':radio')) field.prop('checked', value?true:false);
             else if(field.is('select')) field.prop("selectedIndex", 0);
             else $(this).val(value); 
+            if(name=='background_image')
+            setting.find('#background-toggle img').attr('src',value?value:image);
           });  
-
+          
           break;
 
         case 'default-setting':
@@ -1035,7 +1085,8 @@
           setting.find('.mdevpb-content').children().hide();
           setting.find('.mdevpb-fields').removeAttr('data-module');
           setting.find('.temp.toggle-module').remove();
-          setting.find('#background-toggle img').attr('src', image);
+          setting.find('.mdevpb-heading').text(data.module+" Settings");
+
           mdev.pagebuilder('values', data);
 
           break;
@@ -1051,6 +1102,7 @@
           mdev.pagebuilder('setting');
           mdev.pagebuilder('elements');
           mdev.pagebuilder('sortable');
+
           break;
 
       }
@@ -1062,8 +1114,6 @@
   $(document).ready(function() { 
     
     if(mdev.get('mdevpagebuilder')) mdev.pagebuilder();
-  
-   // mdev.module('.content');
+    else mdev.module('.content');
     
-
 }); })(jQuery)
